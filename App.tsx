@@ -9,11 +9,12 @@ import {
 } from "react-native";
 
 import { TwitterScrollableHeader } from "./components/twitterScrollableHeader";
+import { AirbnbHeader } from "./components/airbnbHeader";
 
 export default function App() {
   return (
     <SafeAreaView style={styles.container}>
-      <TwitterScrollableHeader />
+      <AirbnbHeader />
     </SafeAreaView>
   );
 }
