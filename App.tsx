@@ -1,20 +1,12 @@
 import React from "react";
-import {
-  Platform,
-  SafeAreaView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Platform, SafeAreaView, StatusBar, StyleSheet } from "react-native";
 
-import { TwitterScrollableHeader } from "./components/twitterScrollableHeader";
-import { AirbnbHeader } from "./components/airbnbHeader";
+import { AnimatedLogin } from "./components/animatedLogin";
 
 export default function App() {
   return (
     <SafeAreaView style={styles.container}>
-      <AirbnbHeader />
+      <AnimatedLogin />
     </SafeAreaView>
   );
 }
