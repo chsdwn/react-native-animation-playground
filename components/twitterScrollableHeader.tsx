@@ -22,6 +22,38 @@ export const TwitterScrollableHeader = () => {
     extrapolate: "clamp",
   });
 
+  const profileImageHeight = scrollY.interpolate({
+    inputRange: [0, HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT],
+    outputRange: [PROFILE_IMAGE_MAX_HEIGHT, PROFILE_IMAGE_MIN_HEIGHT],
+    extrapolate: "clamp",
+  });
+
+  const profileImageMarginTop = scrollY.interpolate({
+    inputRange: [0, HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT],
+    outputRange: [
+      HEADER_MAX_HEIGHT - PROFILE_IMAGE_MAX_HEIGHT / 2,
+      HEADER_MAX_HEIGHT + 5,
+    ],
+    extrapolate: "clamp",
+  });
+
+  const headerZIndex = scrollY.interpolate({
+    inputRange: [0, HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT],
+    outputRange: [0, 1],
+    extrapolate: "clamp",
+  });
+
+  const headerTitleBottom = scrollY.interpolate({
+    inputRange: [
+      0,
+      HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT,
+      HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT + 5 + PROFILE_IMAGE_MIN_HEIGHT,
+      HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT + 5 + PROFILE_IMAGE_MIN_HEIGHT + 26,
+    ],
+    outputRange: [-20, -20, -20, 0],
+    extrapolate: "clamp",
+  });
+
   return (
     <View style={{ flex: 1 }}>
       <Animated.View
@@ -32,8 +64,18 @@ export const TwitterScrollableHeader = () => {
           right: 0,
           backgroundColor: "lightskyblue",
           height: headerHeight,
+          alignItems: "center",
+          zIndex: headerZIndex,
         }}
-      ></Animated.View>
+      >
+        <Animated.View
+          style={{ position: "absolute", bottom: headerTitleBottom }}
+        >
+          <Text style={{ fontSize: 14, fontWeight: "bold", color: "white" }}>
+            Ali Veli
+          </Text>
+        </Animated.View>
+      </Animated.View>
 
       <ScrollView
         style={{ flex: 1 }}
@@ -43,23 +85,23 @@ export const TwitterScrollableHeader = () => {
           { nativeEvent: { contentOffset: { y: scrollY } } },
         ])}
       >
-        <View
+        <Animated.View
           style={{
-            height: PROFILE_IMAGE_MAX_HEIGHT,
-            width: PROFILE_IMAGE_MAX_HEIGHT,
+            height: profileImageHeight,
+            width: profileImageHeight,
             borderRadius: PROFILE_IMAGE_MAX_HEIGHT / 2,
             borderColor: "white",
             borderWidth: 3,
             overflow: "hidden",
-            marginTop: HEADER_MAX_HEIGHT - PROFILE_IMAGE_MAX_HEIGHT / 2,
+            marginTop: profileImageMarginTop,
             marginLeft: 10,
           }}
         >
           <Image
             source={require("../assets/profilePicture.png")}
-            style={{ flex: 1, width: "100%", height: "100%" }}
+            style={{ flex: 1, width: "100%", height: "100%", zIndex: 0 }}
           />
-        </View>
+        </Animated.View>
         <View>
           <Text style={{ fontWeight: "bold", fontSize: 26, paddingLeft: 10 }}>
             Ali Veli
