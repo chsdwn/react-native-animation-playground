@@ -1,13 +1,19 @@
-import React, { useState, useEffect, SyntheticEvent } from "react";
-import { Dimensions, Image, StyleSheet, Text, View } from "react-native";
+import React, { useState } from "react";
+import {
+  Dimensions,
+  Image,
+  Platform,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import { AppLoading } from "expo";
 import { Asset } from "expo-asset";
 import Animated, { Easing } from "react-native-reanimated";
-import {
-  State,
-  TapGestureHandler,
-  TapGestureHandlerStateChangeEvent,
-} from "react-native-gesture-handler";
+import { State, TapGestureHandler } from "react-native-gesture-handler";
+import Svg, { Circle, ClipPath, Image as ImageRNS } from "react-native-svg";
 
 const cacheImages = (images: [any]) => {
   return images.map((image) => {
@@ -20,14 +26,16 @@ const cacheImages = (images: [any]) => {
 };
 
 const { width, height } = Dimensions.get("window");
+const statusBarHeight = StatusBar.currentHeight ? StatusBar.currentHeight : 0;
 const {
   block,
   clockRunning,
+  concat,
   cond,
   debug,
   eq,
-  event,
   interpolate,
+  not,
   set,
   startClock,
   stopClock,
@@ -83,6 +91,7 @@ export const AnimatedLogin = () => {
 
   const state = new Value(State.UNDETERMINED);
   const buttonOpacity = new Value(1);
+  const open = new Value<0 | 1>(1);
 
   const buttonY = interpolate(buttonOpacity, {
     inputRange: [0, 1],
@@ -91,14 +100,35 @@ export const AnimatedLogin = () => {
   });
   const bgY = interpolate(buttonOpacity, {
     inputRange: [0, 1],
-    outputRange: [-height / 3, 0],
+    outputRange: [-height / 3 - statusBarHeight, 0],
+  });
+  const textInputZindex = interpolate(buttonOpacity, {
+    inputRange: [0, 1],
+    outputRange: [1, -1],
+    extrapolate: Extrapolate.CLAMP,
+  });
+  const textInputOpacity = interpolate(buttonOpacity, {
+    inputRange: [0, 1],
+    outputRange: [1, -1],
+    extrapolate: Extrapolate.CLAMP,
+  });
+  const textInputY = interpolate(buttonOpacity, {
+    inputRange: [0, 1],
+    outputRange: [1, 0],
+    extrapolate: Extrapolate.CLAMP,
+  });
+  const rotateCross = interpolate(buttonOpacity, {
+    inputRange: [0, 1],
+    outputRange: [180, 360],
+    extrapolate: Extrapolate.CLAMP,
   });
 
   useCode(
     () =>
       cond(
         eq(state, State.END),
-        set(buttonOpacity, runTiming(new Clock(), 1, 0))
+        set(buttonOpacity, runTiming(new Clock(), open, not(open))),
+        set(open, not(open))
       ),
     [state, buttonOpacity]
   );
@@ -129,10 +159,18 @@ export const AnimatedLogin = () => {
           transform: [{ translateY: bgY }],
         }}
       >
-        <Image
-          source={require("../assets/bg.jpg")}
-          style={{ flex: 1, height: "100%", width: "100%" }}
-        />
+        <Svg height={height} width={width}>
+          <ClipPath id="clip">
+            <Circle r={height} cx={width / 2} />
+          </ClipPath>
+          <ImageRNS
+            href={require("../assets/bg.jpg")}
+            width={width}
+            height={height}
+            preserveAspectRatio="xMidYMid slice"
+            clipPath="url(#clip)"
+          />
+        </Svg>
       </Animated.View>
       <View style={{ height: height / 3 }}>
         <TapGestureHandler
@@ -160,6 +198,46 @@ export const AnimatedLogin = () => {
             SIGN IN WITH FACEBOOK
           </Text>
         </Animated.View>
+        <Animated.View
+          style={{
+            height: height / 3,
+            width: "100%",
+            position: "absolute",
+            justifyContent: "center",
+            zIndex: textInputZindex,
+            elevation: textInputZindex,
+            opacity: textInputOpacity,
+            transform: [{ translateY: textInputY }],
+          }}
+        >
+          <TapGestureHandler
+            onHandlerStateChange={Animated.event([{ nativeEvent: { state } }])}
+          >
+            <Animated.View style={styles.closeButton}>
+              <Animated.Text
+                style={{
+                  fontSize: 15,
+                  transform: [{ rotate: concat(rotateCross, "deg") }],
+                }}
+              >
+                X
+              </Animated.Text>
+            </Animated.View>
+          </TapGestureHandler>
+          <TextInput
+            placeholder="EMAIL"
+            style={styles.textInput}
+            placeholderTextColor="black"
+          />
+          <TextInput
+            placeholder="PASSWORD"
+            style={styles.textInput}
+            placeholderTextColor="black"
+          />
+          <Animated.View style={styles.button}>
+            <Text style={{ fontSize: 20, fontWeight: "bold" }}>SIGN IN</Text>
+          </Animated.View>
+        </Animated.View>
       </View>
     </View>
   );
@@ -174,5 +252,33 @@ const styles = StyleSheet.create({
     borderRadius: 35,
     alignItems: "center",
     justifyContent: "center",
+    shadowOffset: { width: 2, height: 2 },
+    shadowColor: "black",
+    shadowOpacity: 0.2,
+    elevation: 2,
+  },
+  closeButton: {
+    height: 40,
+    width: 40,
+    backgroundColor: "white",
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    position: "absolute",
+    top: -20,
+    left: width / 2 - 20,
+    shadowOffset: { width: 2, height: 2 },
+    shadowColor: "black",
+    shadowOpacity: 0.2,
+    elevation: 2,
+  },
+  textInput: {
+    height: 50,
+    borderRadius: 25,
+    borderWidth: 0.5,
+    marginHorizontal: 20,
+    marginVertical: 5,
+    paddingLeft: 10,
+    borderColor: "rgba(0,0,0,.2)",
   },
 });
