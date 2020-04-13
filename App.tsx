@@ -1,12 +1,12 @@
 import React from "react";
 import { Platform, SafeAreaView, StatusBar, StyleSheet } from "react-native";
 
-import { AnimatedLogin } from "./components/animatedLogin";
+import { TabbarShuffle } from "./components/tabbarShuffle";
 
 export default function App() {
   return (
     <SafeAreaView style={styles.container}>
-      <AnimatedLogin />
+      <TabbarShuffle />
     </SafeAreaView>
   );
 }
